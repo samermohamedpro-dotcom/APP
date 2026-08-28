@@ -3,12 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#5E1622">
+<meta name="theme-color" content="#111111">
 <meta name="robots" content="noindex, nofollow">
 <title>Petit Gâteau — Suivi</title>
 
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%235E1622'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23FAF6EC' font-family='Georgia,serif'%3EPG%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+
+<!-- iOS n'accepte QUE du PNG pour l'icône de l'écran d'accueil. L'icône SVG
+     qui était ici n'était donc jamais utilisée : le téléphone posait à la
+     place une capture réduite de la page. -->
+<link rel="apple-touch-icon" href="icone-180.png">
+<link rel="icon" href="icone-192.png" type="image/png">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- « default » : la barre d'état garde son fond clair et son texte noir, et
+     ne recouvre jamais le contenu. L'app n'utilise aucun env(safe-area-inset),
+     donc « black-translucent » ferait passer le bandeau sous l'encoche. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Petit Gâteau">
 
 <link rel="preconnect" href="https://firestore.googleapis.com">
@@ -47,5 +59,41 @@ window.FIREBASE_CONFIG = {
 <body>
 <div id="root"></div>
 <script src="app.js?v=202608272129"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  Démarrage hors ligne — voir sw.js pour ce qu'il fait.
+//
+//  TRAPPE DE SECOURS : ajouter ?sw=off à la fin de l'adresse vide tous
+//  les caches et retire le service worker. Recharger ensuite sans ?sw=off
+//  remet tout en place. À utiliser si le cache sert un jour quelque chose
+//  d'aberrant — évite d'avoir à guider quelqu'un dans les réglages de
+//  Safari par téléphone.
+// ═══════════════════════════════════════════════════════════════════
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+
+  if (location.search.indexOf('sw=off') !== -1) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) {
+        if (r.active) r.active.postMessage('purge');
+        r.unregister();
+      });
+    }).catch(function () {});
+    if (window.caches) {
+      caches.keys().then(function (noms) {
+        noms.forEach(function (n) { caches.delete(n); });
+      }).catch(function () {});
+    }
+    return;
+  }
+
+  window.addEventListener('load', function () {
+    // Un échec ici ne doit rien empêcher : l'app tourne exactement comme
+    // avant, simplement sans démarrage hors ligne.
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+})();
+</script>
 </body>
 </html>
