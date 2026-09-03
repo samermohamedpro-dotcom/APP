@@ -20,11 +20,24 @@
      seule chose qu'aucun cache ne peut servir, c'est une URL jamais vue.
      CHANGER LE DESSIN, C'EST CHANGER LE NOM. Voir icones.py.
      Troisième dessin : `icone-*` (PG crème), puis `icone-baleine-*` le matin
-     du 03/09/2026, puis `icone-monogramme-*` l'après-midi même. -->
+     du 03/09/2026, puis `icone-monogramme-*` l'après-midi même.
+
+     La .ico est déclarée sous un nom NEUF, et `favicon.ico` reste posé à
+     côté sans être déclaré. C'est le dernier trou de la règle : les
+     navigateurs demandent `/favicon.ico` d'eux-mêmes, sans lire cette page,
+     donc ce nom-là ne peut pas changer — et c'est précisément l'URL que le
+     magasin de favoris de Safari garde. On lui donne donc à préférer une
+     adresse qu'il n'a jamais vue, et on laisse l'ancienne répondre pour la
+     demande aveugle. Les deux portent la MÊME image.
+
+     Le nom dit le dépôt ET la date. La date, pour que renommer au prochain
+     dessin soit mécanique. Le dépôt, parce que le 03/09/2026 les icônes de
+     l'app se sont retrouvées deux fois dans le dépôt du SITE : un fichier
+     qui dit où il va ne se dépose pas ailleurs par distraction (règle 4). -->
 <link rel="apple-touch-icon" href="icone-monogramme-180.png">
 <link rel="icon" href="icone-monogramme-192.png" type="image/png">
 <link rel="icon" href="icone-monogramme-32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="icone-app-20260903.ico" sizes="any">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -39,7 +52,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=202609031103">
+<link rel="stylesheet" href="app.css?v=202609031801">
 <style>
   html, body { margin: 0; padding: 0; background: #F7F2E6; }
   body { -webkit-font-smoothing: antialiased; }
@@ -69,7 +82,7 @@ window.FIREBASE_CONFIG = {
 </head>
 <body>
 <div id="root"></div>
-<script src="app.js?v=202609031103"></script>
+<script src="app.js?v=202609031801"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
