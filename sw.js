@@ -23,11 +23,16 @@ const CACHE_POLICES = 'pg-polices';
 // Le strict minimum, sans numéro de version : la coquille qui permet
 // d'afficher quelque chose hors ligne. app.js et app.css, eux, portent un
 // ?v= et sont mis en cache au vol, à la première visite en ligne.
-// `icone-baleine-180.png` et non `icone-180.png` : le dessin a changé le
-// 03/09/2026, donc le NOM a changé — sans quoi le cache du navigateur, celui
-// du service worker et l'écran d'accueil auraient continué de servir
-// l'ancienne icône. Voir icones.py.
-const COQUILLE = ['./', './manifest.webmanifest', './icone-baleine-180.png'];
+// Le nom de l'icône suit son dessin : `icone-*`, puis `icone-baleine-*`, puis
+// `icone-monogramme-*` — sans quoi le cache du navigateur, celui du service
+// worker et l'écran d'accueil continueraient de servir l'ancienne. Voir
+// icones.py.
+//
+// ⚠️ `cache.addAll` est TOUT OU RIEN : un seul nom qui ne répond pas, et rien
+// n'entre en coquille — ni la page, ni le manifeste. Le démarrage hors ligne
+// tombe alors en silence, puisque l'échec est avalé plus bas. Ce nom doit donc
+// être changé EN MÊME TEMPS que le fichier, jamais après.
+const COQUILLE = ['./', './manifest.webmanifest', './icone-monogramme-180.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
