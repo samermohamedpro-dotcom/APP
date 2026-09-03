@@ -23,7 +23,11 @@ const CACHE_POLICES = 'pg-polices';
 // Le strict minimum, sans numéro de version : la coquille qui permet
 // d'afficher quelque chose hors ligne. app.js et app.css, eux, portent un
 // ?v= et sont mis en cache au vol, à la première visite en ligne.
-const COQUILLE = ['./', './manifest.webmanifest', './icone-180.png'];
+// `icone-baleine-180.png` et non `icone-180.png` : le dessin a changé le
+// 03/09/2026, donc le NOM a changé — sans quoi le cache du navigateur, celui
+// du service worker et l'écran d'accueil auraient continué de servir
+// l'ancienne icône. Voir icones.py.
+const COQUILLE = ['./', './manifest.webmanifest', './icone-baleine-180.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {

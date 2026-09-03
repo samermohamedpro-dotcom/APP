@@ -12,8 +12,17 @@
 <!-- iOS n'accepte QUE du PNG pour l'icône de l'écran d'accueil. L'icône SVG
      qui était ici n'était donc jamais utilisée : le téléphone posait à la
      place une capture réduite de la page. -->
-<link rel="apple-touch-icon" href="icone-180.png">
-<link rel="icon" href="icone-192.png" type="image/png">
+<!-- Les noms portent « baleine » depuis le 03/09/2026, et ce n'est pas de la
+     coquetterie : l'ancienne icône survivait dans les favoris malgré la
+     suppression du favori, sa recréation et la navigation privée. Les
+     navigateurs indexent les icônes PAR URL, dans un magasin à part qui
+     ignore les en-têtes de cache — et souvent le `?v=`, coupé du chemin. La
+     seule chose qu'aucun cache ne peut servir, c'est une URL jamais vue.
+     CHANGER LE DESSIN, C'EST CHANGER LE NOM. Voir icones.py. -->
+<link rel="apple-touch-icon" href="icone-baleine-180.png">
+<link rel="icon" href="icone-baleine-192.png" type="image/png">
+<link rel="icon" href="icone-baleine-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="favicon.ico" sizes="any">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -28,7 +37,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=202609030829">
+<link rel="stylesheet" href="app.css?v=202609031103">
 <style>
   html, body { margin: 0; padding: 0; background: #F7F2E6; }
   body { -webkit-font-smoothing: antialiased; }
@@ -58,7 +67,7 @@ window.FIREBASE_CONFIG = {
 </head>
 <body>
 <div id="root"></div>
-<script src="app.js?v=202609030829"></script>
+<script src="app.js?v=202609031103"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
