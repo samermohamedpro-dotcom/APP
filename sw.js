@@ -17,8 +17,10 @@
 //  la fraîcheur passe avant les 200 ms gagnés.
 // ═══════════════════════════════════════════════════════════════════
 
-const CACHE_APP     = 'pg-app';
-const CACHE_POLICES = 'pg-polices';
+const CACHE_APP = 'pg-app';
+// `pg-polices` a existé jusqu'au 03/09/2026, quand les polices venaient de
+// Google. Elles sont chez nous depuis : le ménage de l'activation efface
+// l'ancien cache, et il n'y a plus qu'une liste.
 
 // Le strict minimum, sans numéro de version : la coquille qui permet
 // d'afficher quelque chose hors ligne. app.js et app.css, eux, portent un
@@ -53,7 +55,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const noms = await caches.keys();
     await Promise.all(
-      noms.map((n) => (n === CACHE_APP || n === CACHE_POLICES ? null : caches.delete(n)))
+      noms.map((n) => (n === CACHE_APP ? null : caches.delete(n)))
     );
     await self.clients.claim();
   })());
@@ -66,15 +68,9 @@ self.addEventListener('fetch', (event) => {
   let url;
   try { url = new URL(req.url); } catch (e) { return; }
 
-  // Nos propres fichiers : réseau d'abord.
+  // Nos propres fichiers — polices comprises, depuis qu'elles sont chez nous : réseau d'abord.
   if (url.origin === self.location.origin) {
     event.respondWith(reseauDabord(req, event));
-    return;
-  }
-
-  // Les polices Google : elles ne changent jamais, cache d'abord.
-  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-    event.respondWith(policeCacheDabord(req, event));
     return;
   }
 
@@ -125,20 +121,6 @@ async function purgerVersionsAnterieures(cache, req) {
     const u = new URL(cle.url);
     return (u.pathname === chemin && cle.url !== req.url) ? cache.delete(cle) : null;
   }));
-}
-
-async function policeCacheDabord(req, event) {
-  const cache = await caches.open(CACHE_POLICES);
-  const enCache = await cache.match(req);
-  if (enCache) return enCache;
-  const rep = await fetch(req);
-  // Une feuille de style tierce revient « opaque » : illisible pour nous,
-  // parfaitement utilisable par le navigateur. On la garde telle quelle.
-  if (rep && (rep.status === 200 || rep.type === 'opaque')) {
-    const copie = rep.clone();
-    event.waitUntil(cache.put(req, copie).catch(() => {}));
-  }
-  return rep;
 }
 
 // Trappe de secours, déclenchée par index.html quand l'adresse contient
