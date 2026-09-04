@@ -10,17 +10,37 @@
 //  numéro de version. Le dépôt reste ce qu'il a toujours été : app.css,
 //  app.js, index.html. Ne redépose sw.js que si tu l'as modifié lui-même.
 //
-//  ── Réseau d'abord, cache en secours ──
-//  Le contraire (cache d'abord) est plus rapide mais peut servir une
-//  ancienne version après un dépôt. Sur un outil qui pilote le stock
-//  d'une production quotidienne, corriger un bug doit rester instantané :
-//  la fraîcheur passe avant les 200 ms gagnés.
+//  ── Deux règles depuis le 04/09/2026, une par sorte de fichier ──
+//
+//  1. app.js?v=… et app.css?v=…, et les polices : CACHE D'ABORD. Une version
+//     est une URL — le ?v= change à chaque livraison (règle 5) — donc un
+//     fichier versionné ne change jamais de contenu : le relire au réseau
+//     n'apprend rien et coûte, sur une 4G moyenne, la seconde qui sépare
+//     « l'app s'ouvre » de « l'app rame ». Un ?v= jamais vu, lui, part au
+//     réseau et entre en cache — et l'ancien ?v= est effacé.
+//
+//  2. index.html (et le reste) : RÉSEAU D'ABORD, mais pas plus de quelques
+//     secondes. C'est la page qui porte le ?v= : la lire au réseau, c'est ce
+//     qui fait qu'une correction arrive tout de suite sur le téléphone. Mais
+//     un réseau qui met dix secondes à répondre, c'était dix secondes d'écran
+//     blanc devant le four : passé le délai, la coquille en cache s'affiche,
+//     et la réponse du réseau, quand elle arrive, remet le cache à jour pour
+//     la prochaine ouverture.
+//
+//  Avant, tout était réseau d'abord sans délai : sur un réseau lent, l'app
+//  attendait le réseau pour CHAQUE fichier — y compris ceux qui ne pouvaient
+//  pas avoir changé.
 // ═══════════════════════════════════════════════════════════════════
 
 const CACHE_APP = 'pg-app';
 // `pg-polices` a existé jusqu'au 03/09/2026, quand les polices venaient de
 // Google. Elles sont chez nous depuis : le ménage de l'activation efface
 // l'ancien cache, et il n'y a plus qu'une liste.
+
+// Au-delà de ce délai, la page vient du cache si elle y est. Une 4G correcte
+// répond en moins d'une seconde ; on ne pénalise que les réseaux qui, de
+// toute façon, allaient faire attendre.
+const DELAI_RESEAU_MS = 3500;
 
 // Le strict minimum, sans numéro de version : la coquille qui permet
 // d'afficher quelque chose hors ligne. app.js et app.css, eux, portent un
@@ -61,6 +81,17 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
+// Un fichier versionné ne change jamais : app.js?v=… et app.css?v=…
+function estVersionne(url) {
+  return /\.(js|css)$/.test(url.pathname) && url.searchParams.has('v');
+}
+
+// Une police non plus : le fichier porte son nom, son poids et son alphabet,
+// et un nouveau dessin serait un nouveau fichier (comme les icônes).
+function estPolice(url) {
+  return /\/polices\/[^/]+\.woff2$/.test(url.pathname);
+}
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -68,9 +99,13 @@ self.addEventListener('fetch', (event) => {
   let url;
   try { url = new URL(req.url); } catch (e) { return; }
 
-  // Nos propres fichiers — polices comprises, depuis qu'elles sont chez nous : réseau d'abord.
+  // Nos propres fichiers, et rien d'autre.
   if (url.origin === self.location.origin) {
-    event.respondWith(reseauDabord(req, event));
+    if (estVersionne(url) || estPolice(url)) {
+      event.respondWith(cacheDabord(req, event));
+    } else {
+      event.respondWith(reseauDabord(req, event));
+    }
     return;
   }
 
@@ -82,32 +117,64 @@ self.addEventListener('fetch', (event) => {
   // ce qui n'y figure pas est ignoré. Ne jamais l'inverser.
 });
 
+// Garde une copie en cache d'une bonne réponse — et rien d'autre.
+// status 200 strictement : une réponse partielle (206) fait échouer
+// cache.put, et une redirection n'a rien à faire en cache.
+function mettreEnCache(cache, req, rep, event) {
+  if (!rep || rep.status !== 200 || rep.type !== 'basic') return;
+  const copie = rep.clone();
+  const travail = (async () => {
+    await purgerVersionsAnterieures(cache, req);
+    await cache.put(req, copie);
+  })().catch(() => {});
+  // Quand la page a déjà été servie depuis le cache (réseau trop lent), la
+  // réponse du réseau arrive APRÈS la fin de l'événement : `waitUntil` refuse
+  // alors, et ce n'est pas grave — l'écriture est déjà lancée.
+  try { event.waitUntil(travail); } catch (e) { /* événement déjà clos */ }
+}
+
+// Les fichiers versionnés : le cache répond s'il a ; sinon le réseau, et on garde.
+async function cacheDabord(req, event) {
+  const cache = await caches.open(CACHE_APP);
+  const enCache = await cache.match(req);
+  if (enCache) return enCache;
+  const rep = await fetch(req);
+  mettreEnCache(cache, req, rep, event);
+  return rep;
+}
+
+// La page et le reste : le réseau répond s'il est là et pas trop lent ;
+// sinon le cache ; et hors ligne sur une adresse jamais vue, la page
+// d'accueil — c'est une application d'une seule page, elle sait afficher
+// la suite.
 async function reseauDabord(req, event) {
+  const cache = await caches.open(CACHE_APP);
+  const reseau = fetch(req).then((rep) => { mettreEnCache(cache, req, rep, event); return rep; });
   try {
-    const rep = await fetch(req);
-    // status 200 strictement : une réponse partielle (206) fait échouer
-    // cache.put, et une redirection n'a rien à faire en cache.
-    if (rep && rep.status === 200 && rep.type === 'basic') {
-      const copie = rep.clone();
-      event.waitUntil((async () => {
-        const cache = await caches.open(CACHE_APP);
-        await purgerVersionsAnterieures(cache, req);
-        await cache.put(req, copie);
-      })().catch(() => {}));
-    }
-    return rep;
+    return await avecDelai(reseau, DELAI_RESEAU_MS);
   } catch (err) {
-    const cache = await caches.open(CACHE_APP);
     const enCache = await cache.match(req);
     if (enCache) return enCache;
-    // Hors ligne sur une adresse jamais visitée : on sert la page d'accueil,
-    // qui est une application d'une seule page — elle sait afficher la suite.
     if (req.mode === 'navigate') {
       const accueil = (await cache.match('./index.html')) || (await cache.match('./'));
       if (accueil) return accueil;
     }
-    throw err;
+    // Rien en cache : on rend la main au réseau, quel que soit son temps —
+    // une réponse tardive vaut mieux qu'une erreur tout de suite.
+    return reseau;
   }
+}
+
+// Une promesse qui abandonne après `ms`. Le réseau, lui, continue : sa
+// réponse tardive servira quand même à remplir le cache (voir mettreEnCache).
+function avecDelai(promesse, ms) {
+  return new Promise((resoudre, rejeter) => {
+    const minuterie = setTimeout(() => rejeter(new Error('délai réseau dépassé')), ms);
+    promesse.then(
+      (valeur) => { clearTimeout(minuterie); resoudre(valeur); },
+      (erreur) => { clearTimeout(minuterie); rejeter(erreur); }
+    );
+  });
 }
 
 // app.js?v=202608272129 et app.js?v=202609010900 sont deux entrées distinctes
