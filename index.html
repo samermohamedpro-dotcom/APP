@@ -7,6 +7,14 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Petit Gâteau — Suivi</title>
 
+<!-- CE QUI A CHANGÉ — à réécrire à CHAQUE dépôt, en même temps que le ?v=
+     d'app.js plus bas. L'app le montre une fois après la mise à jour, jusqu'à
+     « OK » (src/version.js, 14/09/2026). Une phrase, dans les deux langues,
+     pour la personne qui se sert de l'app — pas pour un développeur.
+     `deposer.sh app` refuse une nouvelle version dont la ligne n'a pas changé. -->
+<meta name="pg-nouveautes" lang="fr" content="Nouveau : les clientes se retrouvent plus vite dans le Résumé, et l’app vous dit maintenant ce qui a changé après chaque mise à jour.">
+<meta name="pg-nouveautes" lang="en" content="New: finding a client in Summary is quicker, and the app now tells you what changed after each update.">
+
 <link rel="manifest" href="manifest.webmanifest">
 
 <!-- iOS n'accepte QUE du PNG pour l'icône de l'écran d'accueil. L'icône SVG
@@ -51,7 +59,7 @@
 <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
 <!-- Les polices sont dans polices/, déclarées par app.css : plus rien n'est
      chargé chez Google depuis le 03/09/2026. -->
-<link rel="stylesheet" href="app.css?v=202609140213">
+<link rel="stylesheet" href="app.css?v=202609140133">
 <style>
   html, body { margin: 0; padding: 0; background: #F7F2E6; }
   body { -webkit-font-smoothing: antialiased; }
@@ -81,7 +89,8 @@ window.FIREBASE_CONFIG = {
 </head>
 <body>
 <div id="root"></div>
-<script src="app.js?v=202609140213"></script>
+<!-- Le ?v= change à chaque dépôt, et la ligne « pg-nouveautes » du <head> avec lui. -->
+<script src="app.js?v=202609140133"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
