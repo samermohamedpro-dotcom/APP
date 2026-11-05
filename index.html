@@ -12,8 +12,8 @@
      « OK » (src/version.js, 14/09/2026). Une phrase, dans les deux langues,
      pour la personne qui se sert de l'app — pas pour un développeur.
      `deposer.sh app` refuse une nouvelle version dont la ligne n'a pas changé. -->
-<meta name="pg-nouveautes" lang="fr" content="Le message à envoyer à la cliente n’est plus en haut : il s’affiche sur la carte de la commande (Agenda) ou de la vente (Ventes) qu’on vient d’enregistrer, et l’écran descend jusqu’à elle.">
-<meta name="pg-nouveautes" lang="en" content="The message to send the customer is no longer at the top: it shows on the card of the order (Schedule) or sale (Sales) you just saved, and the screen scrolls to it.">
+<meta name="pg-nouveautes" lang="fr" content="Plus simple : dans « Nouvelle commande », le produit est en premier et le code privé est un lien. Ventes montre ce qui a été vendu ce mois-ci. « Pas disponible » et « Codes privés » tiennent sur une ligne.">
+<meta name="pg-nouveautes" lang="en" content="Simpler: in “New order”, the product comes first and the private code is a link. Sales shows what was sold this month. “Not available” and “Private codes” sit on one line.">
 
 <link rel="manifest" href="manifest.webmanifest">
 
@@ -59,7 +59,7 @@
 <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
 <!-- Les polices sont dans polices/, déclarées par app.css : plus rien n'est
      chargé chez Google depuis le 03/09/2026. -->
-<link rel="stylesheet" href="app.css?v=202610051650">
+<link rel="stylesheet" href="app.css?v=202611050614">
 <style>
   html, body { margin: 0; padding: 0; background: #F7F2E6; }
   body { -webkit-font-smoothing: antialiased; }
@@ -90,7 +90,7 @@ window.FIREBASE_CONFIG = {
 <body>
 <div id="root"></div>
 <!-- Le ?v= change à chaque dépôt, et la ligne « pg-nouveautes » du <head> avec lui. -->
-<script src="app.js?v=202611050533"></script>
+<script src="app.js?v=202611050614"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
