@@ -201,3 +201,58 @@ self.addEventListener('message', (event) => {
     await self.registration.unregister();
   })());
 });
+
+// ═══════════════════════════════════════════════════════════════════
+//  🔔 Les notifications — ce qui sonne quand l'app est FERMÉE (20/11/2026).
+//
+//  Le premier changement de ce fichier pour autre chose que le cache :
+//  « il ne change jamais » (en tête) voulait dire « pas à chaque livraison »,
+//  et c'est toujours vrai. Il se redépose cette fois-ci, une fois.
+//
+//  La fonction serveur envoie un message de DONNÉES (`functions/index.js`,
+//  `envoyer`) : titre, corps, étiquette. On l'affiche ici nous-mêmes, sans
+//  la bibliothèque de Firebase, pour que ce service worker reste le seul et
+//  le même — celui du démarrage hors ligne. (La conciergerie en a un second,
+//  `firebase-messaging-sw.js` ; deux service workers ne peuvent pas se
+//  partager la même portée, et celle-ci est déjà prise.)
+//
+//  ⚠ CHAQUE MESSAGE AFFICHE UNE NOTIFICATION, même illisible. Safari retire
+//  la permission à une app qui reçoit un message sans rien montrer : un
+//  message qu'on ne comprend pas s'affiche donc quand même, en clair.
+//
+//  ⚠ ?sw=off (plus haut) retire ce service worker, et avec lui
+//  l'abonnement : après la trappe, réactiver les notifications dans le menu.
+// ═══════════════════════════════════════════════════════════════════
+function lireNotification(data) {
+  let p = {};
+  try { p = data ? data.json() : {}; } catch (e) { p = {}; }
+  // FCM range nos champs sous `data` ; on accepte aussi un message posé à plat.
+  const d = (p && (p.data || p.notification)) || p || {};
+  return {
+    titre: String(d.titre || d.title || 'Petit Gâteau'),
+    corps: String(d.corps || d.body || ''),
+    etiquette: d.etiquette ? String(d.etiquette) : undefined,
+  };
+}
+
+self.addEventListener('push', (event) => {
+  const n = lireNotification(event.data);
+  event.waitUntil(self.registration.showNotification(n.titre, {
+    body: n.corps,
+    tag: n.etiquette,
+    icon: 'icone-monogramme-192.png',
+    badge: 'icone-monogramme-192.png',
+  }));
+});
+
+// Toucher la notification ouvre l'app — celle qui est déjà ouverte si elle
+// l'est, plutôt qu'une seconde copie.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil((async () => {
+    const fenetres = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const ouverte = fenetres.find((f) => 'focus' in f);
+    if (ouverte) return ouverte.focus();
+    return self.clients.openWindow(self.registration.scope);
+  })());
+});
