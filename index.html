@@ -12,8 +12,8 @@
      « OK » (src/version.js, 14/09/2026). Une phrase, dans les deux langues,
      pour la personne qui se sert de l'app — pas pour un développeur.
      `deposer.sh app` refuse une nouvelle version dont la ligne n'a pas changé. -->
-<meta name="pg-nouveautes" lang="fr" content="Nouveau : « Ouverte jusqu’à 22 h », dans « Pas disponible » de l’Agenda — le site propose aussi 21 h et 22 h ce soir-là. Et « Activer les notifications », dans l’Agenda, fait sonner cet appareil à chaque nouvelle commande.">
-<meta name="pg-nouveautes" lang="en" content="New: “Open until 10 PM”, in Not available on the Schedule — the website also offers 9 PM and 10 PM that evening. And Turn on notifications, in the Schedule, makes this device ring for every new order.">
+<meta name="pg-nouveautes" lang="fr" content="Notifications : un rappel si une commande du site n’est pas traitée (30 min pour l’iPad, 1 h pour Samer), un résumé à 11 h, et « paiement par carte reçu » sur l’iPad. Le menu ⋯ › Notifications dit ce que reçoit cet appareil.">
+<meta name="pg-nouveautes" lang="en" content="Notifications: a reminder when a site order is not answered (30 min on the iPad), a summary at 11 am, and “card payment received” on the iPad. The ⋯ menu › Notifications shows what this device gets.">
 
 <link rel="manifest" href="manifest.webmanifest">
 
@@ -59,7 +59,7 @@
 <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
 <!-- Les polices sont dans polices/, déclarées par app.css : plus rien n'est
      chargé chez Google depuis le 03/09/2026. -->
-<link rel="stylesheet" href="app.css?v=202611202216">
+<link rel="stylesheet" href="app.css?v=202611210527">
 <style>
   html, body { margin: 0; padding: 0; background: #F7F2E6; }
   body { -webkit-font-smoothing: antialiased; }
@@ -90,7 +90,7 @@ window.FIREBASE_CONFIG = {
 <body>
 <div id="root"></div>
 <!-- Le ?v= change à chaque dépôt, et la ligne « pg-nouveautes » du <head> avec lui. -->
-<script src="app.js?v=202611202216"></script>
+<script src="app.js?v=202611210527"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
